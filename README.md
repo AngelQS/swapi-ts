@@ -160,13 +160,3 @@ Root endpoint: ```https://3znvgsvepb.execute-api.us-east-1.amazonaws.com/```
 | `films` | `array` | **Required**. Películas |
 | `url` | `string` | **Required**. URL |
 | `vehicle_class` | `string` | **Required**. Clase vehículo |
-
-#### Create Public Image (DynamoDB)
-
-```http
-  POST {root-endpoint}/dynamo/image/public
-```
-
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `vehicle_id` | `string` | **Required**. Identificador del vehículo |
