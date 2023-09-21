@@ -1,0 +1,113 @@
+service: swapi-ts
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  lambdaHashingVersion: 20201221
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: "arn:aws:dynamodb:us-east-1:524786384851:table/vehicles"
+        
+
+  stage: dev
+  region: us-east-1
+
+  environment:
+    SW_API_URL: "https://swapi.py4e.com/api"
+    SW_LIST_PEOPLE_ENDPOINT: "/people/"
+    SW_LIST_PLANETS_ENDPOINT: "/planets/"
+    SW_LIST_FILMS_ENDPOINT: "/films/"
+    SW_LIST_SPECIES_ENDPOINT: "/species/"
+    SW_LIST_VEHICLES_ENDPOINT: "/vehicles/"
+    SW_LIST_STARSHIPS_ENDPOINT: "/starships/"
+    DYNAMODB_TABLE_VEHICLES: "vehicles"
+
+custom:
+  autoswagger:
+    typefiles: [
+      "./src/swagger/types/vehicle.d.ts",
+      "./src/swagger/types/films.d.ts",
+      "./src/swagger/types/person.d.ts",
+      "./src/swagger/types/listpeople.d.ts",
+      "./src/swagger/types/planet.d.ts",
+      "./src/swagger/types/listplanets.d.ts",
+      ]
+
+functions:
+  health:
+    handler: src/controller.health
+    events:
+      - httpApi:
+          path: /api/health
+          method: get
+          cors: true
+  listPeople:
+    handler: src/controller.listPeople
+    events:
+      - httpApi:
+          path: /api/people
+          method: get
+          cors: true
+          response:
+            description: 'Success response'
+            # bodyType: 'ListPeople'
+            headers:
+              Content-Type: "'application/json'"
+  listPlanets:
+    handler: src/controller.listPlanets
+    events:
+      - httpApi:
+          path: /api/planets
+          method: get
+          cors: true
+          response:
+            description: 'Success response'
+            # bodyType: 'ListPlanets'
+            headers:
+              Content-Type: "'application/json'"
+  createVehicle:
+    handler: src/controller.createVehicle
+    events:
+      - httpApi:
+          path: /api/vehicles
+          method: post
+          cors: true
+          response:
+            description: 'Success response'
+            # bodyType: 'Vehicle'
+            headers:
+              Content-Type: "'application/json'"
+  getVehicle:
+    handler: src/controller.getVehicle
+    events:
+      - httpApi:
+          path: /api/vehicles/{vehicle_id}
+          method: get
+          cors: true
+          response:
+            description: 'Success response'
+            # bodyType: 'Vehicle'
+            headers:
+              Content-Type: "'application/json'"
+
+plugins:
+  - serverless-auto-swagger
+  - serverless-plugin-typescript
+  - serverless-offline
+
+resources:
+  Resources:
+    ReservationSystemConnections:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "vehicles"
+        AttributeDefinitions:
+          - AttributeName: vehicle_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: vehicle_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
